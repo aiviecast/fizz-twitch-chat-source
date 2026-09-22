@@ -1,12 +1,12 @@
 # fizz-twitch-chat-source
 
 **Fizz** コメント入力系部品 — Twitch チャットを匿名購読して正規化コメント
-([fizz-protocol](https://github.com/Aid-On/fizz-protocol) の `Comment`) を
+([fizz-protocol](https://github.com/aiviecast/fizz-protocol) の `Comment`) を
 NDJSON で stdout に流す。
 
 責務は一行: **Twitch IRC → comment ストリーム**。
 匿名 nick (`justinfan{N}`) の読み取り専用 — OAuth 不要、チャット送信なし。
-dedupe は [fizz-comment-dedupe](https://github.com/Aid-On/fizz-comment-dedupe) の責務。
+dedupe は [fizz-comment-dedupe](https://github.com/aiviecast/fizz-comment-dedupe) の責務。
 
 ## Usage
 
