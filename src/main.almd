@@ -36,7 +36,7 @@ effect fn main() -> Unit = {
 effect fn run_once(channel: String, seq_start: Int) -> Result[Int, String] = {
   var seq = seq_start
   // 匿名 nick。乱数の代わりに壁時計の下位桁で十分 (サーバ側に一意性要件なし)。
-  let nick = "justinfan${int.to_string(env.millis() % 1000000)}"
+  let nick = "justinfan${int.to_string(datetime.now_ms() % 1000000)}"
   match net.tcp_connect(twitch.TWITCH_IRC_HOST, twitch.TWITCH_IRC_PORT) {
     err(e) => {
       eprintln("[twitch] connect error: ${e}")
@@ -44,13 +44,13 @@ effect fn run_once(channel: String, seq_start: Int) -> Result[Int, String] = {
     },
     ok(stream) => {
       for line in twitch.handshake_lines(nick, channel) {
-        let _ = net.tcp_write(stream, bytes.from_string(line + "\r\n"))
+        let _ = io.write(stream, bytes.from_string(line + "\r\n"))
       }
       eprintln("[twitch] open — #${twitch.normalize_channel(channel)} as ${nick}")
       var buffer = ""
       var open = true
       while open {
-        match net.tcp_read(stream, READ_CHUNK) {
+        match io.read(stream, READ_CHUNK) {
           err(e) => {
             eprintln("[twitch] read error: ${e}")
             open = false
@@ -64,14 +64,14 @@ effect fn run_once(channel: String, seq_start: Int) -> Result[Int, String] = {
               let lb = twitch.split_lines(buffer)
               buffer = lb.remainder
               for line in lb.complete {
-                let fallback = "tw-${int.to_string(env.millis())}-${int.to_string(seq)}"
+                let fallback = "tw-${int.to_string(datetime.now_ms())}-${int.to_string(seq)}"
                 match twitch.classify_line(line, fallback) {
                   twitch.Emit(c) => {
                     seq = seq + 1
                     println(comment.comment_to_json(c))
                   },
                   twitch.SendPong(reply) => {
-                    let _ = net.tcp_write(stream, bytes.from_string(reply + "\r\n"))
+                    let _ = io.write(stream, bytes.from_string(reply + "\r\n"))
                   },
                   twitch.Reconnect => {
                     eprintln("[twitch] server requested RECONNECT")
@@ -84,7 +84,7 @@ effect fn run_once(channel: String, seq_start: Int) -> Result[Int, String] = {
           },
         }
       }
-      let _ = net.tcp_close(stream)
+      let _ = io.close(stream)
       ok(seq)
     },
   }

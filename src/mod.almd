@@ -48,7 +48,7 @@ type IrcMessage = {
 }
 
 // Twitch タグ値のエスケープ: \s → space, \n, \r, \: → ;, \\ → \。
-fn unescape_tag_value(s: String) -> String = unescape_rec(string.chars(s), "")
+fn unescape_tag_value(s: String) -> String = unescape_rec(string.to_list(s), "")
 
 local fn unescape_rec(cs: List[String], acc: String) -> String =
   match cs {
