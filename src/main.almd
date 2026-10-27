@@ -6,6 +6,7 @@
 import self as twitch
 import fizz_protocol.comment
 import net
+import io
 import env
 import bytes
 import process
